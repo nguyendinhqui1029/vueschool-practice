@@ -5,12 +5,16 @@ import Aura from '@primevue/themes/aura';
 import './style.css'
 import { basicSetup } from 'codemirror'
 import VueCodemirror from 'vue-codemirror'
+import router from './router';
 
-createApp(App).use(PrimeVue,{
+createApp(App)
+.use(router)
+.use(PrimeVue,{
   theme: {
       preset: Aura
   }
-}).use(VueCodemirror, {
+})
+.use(VueCodemirror, {
     // optional default global options
     autofocus: true,
     disabled: false,

@@ -9,7 +9,7 @@
         class="w-full md:w-56" />
         <Button :disabled="!code" label="Run" severity="success" class="min-w-20" @click="handleRun"/>
     </div>
-    <Splitter style="height: 300px" class="mb-8">
+    <Splitter class="mb-8">
       <SplitterPanel class="flex items-center justify-center">  
         <codemirror
         v-model="code"
@@ -47,7 +47,7 @@ import Splitter from 'primevue/splitter';
 import SplitterPanel from 'primevue/splitterpanel';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
-import {HTML_TEMPLATE} from '../../constants/common.constant';
+import {HTML_TEMPLATE, LANGUAGE_CONSTANT} from '../../constants/common.constant';
 
 const props = defineProps<{
   language?: string;
@@ -55,16 +55,6 @@ const props = defineProps<{
 }>();
 
 const {language, initCode} = toRefs(props);
-const LANGUAGE_CONSTANT = {
-  JAVASCRIPT: 'JAVASCRIPT',
-  HTML: 'HTML',
-  CSS: 'CSS',
-  SQL: 'SQL',
-  ANGULAR: 'ANGULAR',
-  VUE: 'VUE',
-  SASS: 'SASS',
-  JSON: 'JSON'
-}
 const languagePlugin: Record<string, any> = {
   [LANGUAGE_CONSTANT.JAVASCRIPT]: javascript({
     jsx: true,
@@ -107,6 +97,7 @@ const handleValueChange = (value: string) => {
   code.value = value;
 }
 const handleRun = async () => {
+    errors.value = 'Error: ';
     if(selectedLanguage.value === LANGUAGE_CONSTANT.JAVASCRIPT) {
       const frameDoc = outputFrameRef.value.contentDocument || outputFrameRef.value.contentWindow.document;
       frameDoc.open();
@@ -118,7 +109,7 @@ const handleRun = async () => {
           scriptElement.textContent = code.value;
           frameDoc.body.appendChild(scriptElement);
         } catch (error) {
-          errors.value = error.message;
+          errors.value += error.message;
         }
         return;
     }

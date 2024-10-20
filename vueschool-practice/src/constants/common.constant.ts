@@ -18,3 +18,14 @@ export const HTML_TEMPLATE = `
               </script>
             </body>
           </html>`;
+
+export const LANGUAGE_CONSTANT = {
+  JAVASCRIPT: 'JAVASCRIPT',
+  HTML: 'HTML',
+  CSS: 'CSS',
+  SQL: 'SQL',
+  ANGULAR: 'ANGULAR',
+  VUE: 'VUE',
+  SASS: 'SASS',
+  JSON: 'JSON'
+}
