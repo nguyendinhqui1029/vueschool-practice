@@ -2,7 +2,7 @@
     <div class="flex h-screen w-screen p-2 gap-4 border-e-2">
       <div class="flex flex-col h-full min-w-80 max-w-96">
         <h3 class="font-bold text-2xl">Topic</h3>
-        <ul class="flex flex-col gap-8 mt-2 ml-2">
+        <ul class="flex flex-col gap-2 mt-2 ml-2">
           <li v-for="item of topicList" :key="item.id">
             <h3 class="font-bold line-clamp-1 leading-8">
               {{ item.groupName }}
@@ -54,6 +54,17 @@
           id: 'POST-0003',
           title: 'How to use arrow functions in JavaScript ES6?',
           component:  defineAsyncComponent(()=>import('../components/javascript-es6/HowToUseArrowFunction.vue'))
+        }
+      ]
+    },
+    {
+      id: 'TOPIC-002',
+      groupName: 'Exercise',
+      posts: [
+        {
+          id: 'POST-0004',
+          title: 'Clone trello board',
+          component:  defineAsyncComponent(()=>import('../components/trello-board/TrelloBoardComponent.vue'))
         }
       ]
     }

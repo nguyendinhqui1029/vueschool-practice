@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite && json-server --watch src/json-server/db.json --port 4000",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -21,10 +21,11 @@
     "@primevue/themes": "^4.1.1",
     "codemirror": "^6.0.1",
     "primeicons": "^7.0.0",
-    "primevue": "^4.1.1",
+    "primevue": "^4.2.1",
     "vue": "^3.5.12",
     "vue-codemirror": "^6.1.1",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.7",
