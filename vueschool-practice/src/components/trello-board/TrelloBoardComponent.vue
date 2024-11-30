@@ -64,7 +64,11 @@ async function addNewColumn() {
     title: 'New Column',
     tasks: []
   });
-  boards.value.push(response);
+  boards.value.push({
+    id:response.id,
+    title: 'New Column',
+    tasks: []
+  });
 }
 
 async function handleEditBoardTile(board: Board) {
@@ -73,16 +77,16 @@ async function handleEditBoardTile(board: Board) {
     return;
   }
   board.isEdit = false;
-  const response = await updateColumn(board);
+  await updateColumn(board);
   const index = boards.value.findIndex(item=>item.id === board.id);
   if(index !== -1) {
-    boards.value[index] = response;
+    boards.value[index] = board;
   }
 }
 
 async function deleteColumn(board: Board) {
-  const response = await removeColumn(board.id!);
-  const index = boards.value.findIndex(item=>item.id === response.id);
+  await removeColumn(board.id!);
+  const index = boards.value.findIndex(item=>item.id === board.id);
   if(index !== -1) {
     boards.value.splice(index,1);
   }
@@ -102,7 +106,7 @@ async function addNewTask(board: Board) {
 async function saveTask(board: Board, taskId: string) {
   const index = board.tasks.findIndex(item=>item.id === taskId);
 
-  if(!board.tasks[index].isEdit) {
+  if(index !== -1 && !board.tasks[index].isEdit) {
     board.tasks[index].isEdit = true;
     return;
   }

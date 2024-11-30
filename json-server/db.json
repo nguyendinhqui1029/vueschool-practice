@@ -1,19 +1,3 @@
 {
-  "boards": [
-    {
-      "id": "eb6f",
-      "title": "Column 2",
-      "tasks": [
-        {
-          "id": "230d4a50-cd17-4278-adb6-b90cf16f3294",
-          "title": "",
-          "isEdit": false,
-          "description": "Tết 33",
-          "createdAt": "2024-11-30T05:49:58.996Z",
-          "updatedAt": "2024-11-30T05:49:58.996Z"
-        }
-      ],
-      "isEdit": false
-    }
-  ]
+  "boards": []
 }

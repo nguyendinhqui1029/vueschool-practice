@@ -3,7 +3,7 @@ export async function getBoardData() {
     try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/boards`,{
           headers: {
-            'Accept': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
+            'Content-Type': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
           }
         });
         if (!response.ok) {
@@ -20,7 +20,7 @@ export async function addColumData(board: Board) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/boards`,{
         method: 'POST',
         headers: {
-          'Accept': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
+          'Content-Type': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
         },
         body: JSON.stringify(board)
       });
@@ -38,7 +38,7 @@ export async function updateColumn(board: Board) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/boards/${board.id}`,{
        method: 'PATCH',
       headers: {
-          'Accept': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
+          'Content-Type': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
         },
         body: JSON.stringify(board)
       });
@@ -56,7 +56,7 @@ export async function removeColumn(id: string) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/boards/${id}`,{
        method: 'DELETE',
       headers: {
-          'Accept': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
+          'Content-Type': 'application/json'  // Chắc chắn rằng bạn yêu cầu dữ liệu dưới dạng JSON
         },
       });
       if (!response.ok) {
