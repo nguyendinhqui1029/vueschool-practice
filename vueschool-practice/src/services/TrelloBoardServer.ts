@@ -51,6 +51,7 @@ export async function updateColumn(board: Board) {
     }
 }
 
+
 export async function removeColumn(id: string) {
   try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/boards/${id}`,{

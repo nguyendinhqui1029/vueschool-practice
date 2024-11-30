@@ -8,7 +8,9 @@
       item-key="id"
       :animation="150"
       handle=".drag-handle"
-      class="flex gap-4 items-start">
+      class="flex gap-4 items-start"
+      @dragend="boardOrderChange(boards)"
+      >
         <template #item="{element: board}: {element: Board}">
           <div class="p-4 flex flex-col gap-2 rounded-md min-w-60 bg-gray-200 shadow-sm">
             <header class="text-xl font-bold pb-2 flex items-center gap-2">
@@ -24,6 +26,7 @@
               :animation="150"
               handle=".drag-handle"
               class="flex flex-col gap-4"
+              @dragend="taskOrderChange(board)"
               >
               <template #item="{element: task}: {element: Task}">
                 <div class="flex flex-col gap-4 p-3 bg-white rounded-md">
@@ -61,10 +64,12 @@ const boards = ref<Board[]>([])
 
 async function addNewColumn() {
   const response = await addColumData({
+    order: new Date().getTime(),
     title: 'New Column',
     tasks: []
   });
   boards.value.push({
+    order: new Date().getTime(),
     id:response.id,
     title: 'New Column',
     tasks: []
@@ -127,8 +132,18 @@ function discardTask(board: Board, taskId: string) {
   board.tasks[taskIndex].isEdit = false;
 }
 
+function taskOrderChange(board: Board) {
+  updateColumn(board);
+}
+
+function boardOrderChange(boards: Board[]) {
+  boards.forEach((item:Board, index: number)=>{
+    updateColumn({...item, order: index});
+  })
+  
+}
 async function init() {
-  boards.value = await getBoardData();
+  boards.value = (await getBoardData()).sort((itemOne: Board, itemTwo: Board)=> itemOne.order - itemTwo.order);
 }
 
 init();

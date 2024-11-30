@@ -9,6 +9,7 @@ export interface Task {
 }
 
 export interface Board {
+    order: number;
     id?: string;
     isEdit?: boolean;
     title: string;
