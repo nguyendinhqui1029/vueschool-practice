@@ -29,3 +29,20 @@ export const LANGUAGE_CONSTANT = {
   SASS: 'SASS',
   JSON: 'JSON'
 }
+
+export const LANGUAGE_CODE = {
+  VI: 'vi',
+  EN: 'en',
+  KO: 'ko'
+}
+export const MAPPING_LANGUAGE = {
+  [LANGUAGE_CODE.VI]: 'Tiếng việt',
+  [LANGUAGE_CODE.EN]: 'Tiếng anh',
+  [LANGUAGE_CODE.KO]: 'Tiếng hàn'
+}
+
+export const COMPONENT_TYPE = {
+  HEADER: 'HEADER',
+  PARAGRAPH: 'PARAGRAPH',
+  LIST: 'LIST'
+}
