@@ -1,7 +1,9 @@
 <template>
-  <div class="flex gap-2">
-    <Drawer :visible="isVisibleSelectComponent" header="Drawer">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+  <div class="flex gap-2 relative z-50" id="parentContainer">
+    <Drawer apply-to="#parentContainer"  :modal="false" :visible="isVisibleSelectComponent" @update:visible="emits('toggleVisibleSelectComponent')" header="Component">
+        <div class="flex flex-col gap-4">
+          <div>322</div>
+        </div>
     </Drawer>
     <draggable 
       v-model="contents"
@@ -34,6 +36,10 @@ const props = defineProps<{
   allowEdit: boolean;
   isVisibleSelectComponent: boolean;
 }>();
+
+const emits = defineEmits<{
+  toggleVisibleSelectComponent: []
+}>()
 const { pageDataId, allowEdit, isVisibleSelectComponent } = toRefs(props);
 const contents = ref<ComponentModel[]>([]);
 const isEditMode = ref<boolean>(allowEdit.value);

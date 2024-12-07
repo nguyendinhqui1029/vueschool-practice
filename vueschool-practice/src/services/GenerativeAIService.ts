@@ -1,6 +1,6 @@
 export async function  generateText(prompt: string) {
     try {
-        const key = 'AIzaSyA0G-pGtxco6G95X4hheATrI5oLRAMmod8';
+        const key = import.meta.env.VITE_GOOGLE_API_KEY;
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
           {

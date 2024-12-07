@@ -1,6 +1,6 @@
 <template>
     <div class="flex h-screen w-screen border-e-2">
-      <div class="flex flex-col h-full min-w-96 max-w-96 border-r-2 p-2">
+      <div class="flex flex-col h-full min-w-80 max-w-80 border-r-2 p-2">
         <h3 class="font-bold text-2xl flex justify-between items-center">
           Topic
           <Button :disabled="!isAllowAddParentMenu" @click="addParentMenu" v-if="isEditModel" class="cursor-pointer" icon="pi pi-plus" severity="contrast" variant="text" rounded aria-label="Add" />
@@ -20,11 +20,11 @@
             </div>
            
             <ul class="flex flex-col gap-1 mt-1">
-              <li v-for="post of item.posts" :key="post.id" :class="{'bg-gray-200':post.id === selectedItem.id}" class="pl-2 flex items-center justify-between" @click="handleSelectMenu(post)">
+              <li v-for="post of item.posts" :key="post.id" :class="{'bg-gray-200':post.id === selectedItem?.id}" class="pl-2 flex items-center justify-between" @click="handleSelectMenu(post)">
                   <span v-if="!post.isEdit" class="cursor-pointer line-clamp-1 leading-8" v-tooltip.bottom="post.title">{{ post.title }}</span>
                   <InputText v-if="post.isEdit" class="w-full" type="text" v-model="post.title" />
                   <div v-if="isEditModel" class="flex items-center justify-center">
-                    <Button @click="handleEditOrSaveChildMenu(post)" :disabled="!post.title" class="cursor-pointer" :icon="!post.isEdit ? 'pi pi-pencil' : 'pi pi-save'" severity="contrast" variant="text" rounded aria-label="save and edit" />
+                    <Button @click="handleEditOrSaveChildMenu(post, item.id!)" :disabled="!post.title" class="cursor-pointer" :icon="!post.isEdit ? 'pi pi-pencil' : 'pi pi-save'" severity="contrast" variant="text" rounded aria-label="save and edit" />
                     <Button @click="handleDeleteChildMenu(item, post)" class="cursor-pointer" icon="pi pi-trash" severity="danger" variant="text" rounded aria-label="Add" />
                   </div>
               </li>
@@ -46,14 +46,15 @@
               <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.KO)" inputId="ko" value="ko" v-model="selectedLanguages"/>
               <label for="ko"> <img class="h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="Korea Flag"/> </label>
           </div>
-          <Button v-if="isEditModel && selectedItem?.pageDataId" @click="handleAddContentComponent" class="cursor-pointer" icon="pi pi-plus" severity="contrast" variant="text" rounded aria-label="Add" />
+          <Button v-if="isEditModel && selectedItem?.id" @click="handleAddContentComponent" class="cursor-pointer" icon="pi pi-bars" severity="contrast" variant="text" rounded aria-label="Add" />
           <Button @click="handleLoginForEdit" class="cursor-pointer" :icon="!isEditModel ? 'pi pi-pencil' : 'pi pi-save'" severity="contrast" variant="text" rounded aria-label="Edit" />
         </div>
         <PageWrapperComponent 
-        v-if="selectedItem?.pageDataId"
-        :pageDataId="selectedItem.pageDataId"
+        v-if="selectedItem?.id"
+        :pageDataId="selectedItem.id"
         :allowEdit="isEditModel"
-        :isVisibleSelectComponent="isVisibleSelectComponent"/>
+        :isVisibleSelectComponent="isVisibleSelectComponent"
+        @toggleVisibleSelectComponent="isVisibleSelectComponent = !isVisibleSelectComponent"/>
       </div>
     </div>
   </template>
@@ -67,19 +68,9 @@
   import Button from 'primevue/button';
   import InputText from 'primevue/inputtext';
   import  PageWrapperComponent  from '../components/common/PageWrapperComponent.vue';
-  
-  interface Post {
-    id?: string;
-    title: string;
-    isEdit?: boolean;
-    pageDataId?: string;
-  }
-  interface Topic {
-    id?: string;
-    groupName: string;
-    isEdit?: boolean;
-    posts: Post[];
-  };
+  import { addMenu, deleteMenu, getAllMenu, updateMenu } from '../services/MenuService';
+import { Post, Topic } from '../models/MenuModel';
+
   const {getLanguages, setLanguages} = useLanguages();
   const router = useRouter();
   const route = useRoute();
@@ -99,41 +90,66 @@
     });
   }
 
-  function handleEditOrSaveParentMenu(item: Topic) {
+  async function handleEditOrSaveParentMenu(item: Topic) {
     if(item.isEdit) {
-      item.isEdit = false;
-      // TODO call api lưu parent menu
+      const responseAddParent = await (!item?.id ? addMenu({
+        title: item.groupName,
+        parentId: null
+      }) : updateMenu({
+        id: item.id,
+        title: item.groupName,
+        parentId: null
+      }));
+      if(responseAddParent?.statusCode === 200) {
+        item.isEdit = false;
+        item.id = responseAddParent.data.id;
+      }
       return;
     }
     item.isEdit = true;
   }
 
-  function handleDeleteParentMenu(item: Topic) {
-    topicList.value = topicList.value.filter((topicItem: Topic)=>topicItem.id !== item.id);
-    // TODO: call api remove menu
+  async function handleDeleteParentMenu(item: Topic) {
+    const deleteResult = await deleteMenu(item.id!);
+    if(deleteResult?.statusCode === 200) {
+      topicList.value = topicList.value.filter((topicItem: Topic)=>topicItem.id !== item.id);
+    }
   }
 
-  function handleEditOrSaveChildMenu(item: Post) {
-    if(item.isEdit) {
-      item.isEdit = false;
-      // TODO call api lưu child menu
-      return;
-    }
-    item.isEdit = true;
-  }
+ 
   
-  function handleDeleteChildMenu(item: Topic, postSelect: Post) {
-    item.posts = item.posts.filter((post: Post)=>post.id !== postSelect.id);
-    // TODO: call api remove menu
-
+  async function handleDeleteChildMenu(item: Topic, postSelect: Post) {
+    const deleteResult = await deleteMenu(postSelect.id!);
+    if(deleteResult?.statusCode === 200) {
+      item.posts = item.posts.filter((post: Post)=>post.id !== postSelect.id);
+    }
   }
 
   function handleAddChildMenu(item: Topic) {
     item.posts.push( {
           title: '',
           isEdit: true,
-          pageDataId: ''
       });
+  }
+
+  async function handleEditOrSaveChildMenu(item: Post, parentId: string) {
+    if(item.isEdit) {
+      item.isEdit = false;
+      const responseAddChild = await (!item?.id ? addMenu({
+        title: item.title,
+        parentId: parentId
+      }) : updateMenu({
+        id: item.id,
+        title: item.title,
+        parentId: parentId
+      }));
+      if(responseAddChild?.statusCode === 200) {
+        item.isEdit = false;
+        item.id = responseAddChild.data.id;
+      }
+      return;
+    }
+    item.isEdit = true;
   }
 
   function handleSelectMenu(post: Post) {
@@ -166,7 +182,24 @@
     setLanguages(value);
   })
 
-  function init() {
+  async function init() {
+    const menuResponse = await getAllMenu();
+    if(menuResponse?.statusCode === 200) {
+      const rootMenuList = menuResponse.data.filter(item=>!item.parentId);
+      rootMenuList.forEach(item=> {
+        const childrenMenuList = menuResponse.data.filter(childItem=>childItem.parentId && childItem.parentId === item.id);
+        topicList.value.push({
+          id: item.id,
+          groupName: item.title,
+          isEdit: false,
+          posts: childrenMenuList.map(childItem=>({
+            id: childItem.id,
+            title: childItem.title,
+            isEdit: false
+          }))
+        });
+      });
+    }
     topicList.value.some(value=>{
       const item = value.posts.find(item=>item.id === route.query['id']);
         if(item) {
