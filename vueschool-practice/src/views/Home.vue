@@ -1,5 +1,5 @@
 <template>
-    <div class="flex h-screen w-screen border-e-2">
+    <div class="flex h-screen max-h-screen w-screen border-e-2">
       <div class="flex flex-col h-full min-w-80 max-w-80 border-r-2 p-2">
         <h3 class="font-bold text-2xl flex justify-between items-center">
           Topic
@@ -32,8 +32,8 @@
           </li>
         </ul>
       </div>
-      <div class="grow h-screen overflow-y-auto p-2">
-        <div class="flex justify-end gap-4 h-12 border-b-2 mb-5">
+      <div class="flex flex-col max-h-screen w-full p-4">
+        <div class="flex items-center justify-end gap-4 h-12 border-b-2 mb-5">
           <div class="flex items-center gap-2">
               <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.EN)" inputId="en" value="en" v-model="selectedLanguages"/>
               <label for="en"> <img class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" /> </label>
@@ -47,14 +47,21 @@
               <label for="ko"> <img class="h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="Korea Flag"/> </label>
           </div>
           <Button v-if="isEditModel && selectedItem?.id" @click="handleAddContentComponent" class="cursor-pointer" icon="pi pi-bars" severity="contrast" variant="text" rounded aria-label="Add" />
-          <Button @click="handleLoginForEdit" class="cursor-pointer" :icon="!isEditModel ? 'pi pi-pencil' : 'pi pi-save'" severity="contrast" variant="text" rounded aria-label="Edit" />
+          <ToggleSwitch :value="isEditModel" @change="handleLoginForEdit">
+              <template #handle="{ checked }">
+                  <i :class="['!text-xs pi', { 'pi-eye': !checked, 'pi-pencil': checked }]" />
+              </template>
+          </ToggleSwitch>
         </div>
-        <PageWrapperComponent 
-        v-if="selectedItem?.id"
-        :pageDataId="selectedItem.id"
-        :allowEdit="isEditModel"
-        :isVisibleSelectComponent="isVisibleSelectComponent"
-        @toggleVisibleSelectComponent="isVisibleSelectComponent = !isVisibleSelectComponent"/>
+        <div class="flex grow overflow-y-auto">
+          <PageWrapperComponent 
+          v-if="selectedItem?.id"
+          :pageDataId="selectedItem.id"
+          :allowEdit="isEditModel"
+          :isVisibleSelectComponent="isVisibleSelectComponent"
+          @toggleVisibleSelectComponent="isVisibleSelectComponent = !isVisibleSelectComponent"/>
+        </div>
+        
       </div>
     </div>
   </template>
@@ -69,7 +76,8 @@
   import InputText from 'primevue/inputtext';
   import  PageWrapperComponent  from '../components/common/PageWrapperComponent.vue';
   import { addMenu, deleteMenu, getAllMenu, updateMenu } from '../services/MenuService';
-import { Post, Topic } from '../models/MenuModel';
+  import { Post, Topic } from '../models/MenuModel';
+  import ToggleSwitch from 'primevue/toggleswitch';
 
   const {getLanguages, setLanguages} = useLanguages();
   const router = useRouter();
@@ -117,7 +125,6 @@ import { Post, Topic } from '../models/MenuModel';
   }
 
  
-  
   async function handleDeleteChildMenu(item: Topic, postSelect: Post) {
     const deleteResult = await deleteMenu(postSelect.id!);
     if(deleteResult?.statusCode === 200) {
@@ -159,7 +166,6 @@ import { Post, Topic } from '../models/MenuModel';
 
   function handleAddContentComponent() {
     isVisibleSelectComponent.value = !isVisibleSelectComponent.value;
-    console.log('isVisibleSelectComponent.value', isVisibleSelectComponent.value)
   }
 
   function handleLoginForEdit() {

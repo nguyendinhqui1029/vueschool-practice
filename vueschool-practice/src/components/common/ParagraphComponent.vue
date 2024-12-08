@@ -1,26 +1,31 @@
 <template>
-    <div class="flex flex-col px-2 border-l-2">
-    <template v-if="!isEditMode">
+    <div class="flex gap-4 ml-4 flex-col px-2 border-l-2">
+    <template v-if="isEditMode">
       <div class="flex flex-col gap-4">
-        <div class="flex gap-4 justify-end items-center">
-          <div class="flex justify-end gap-4 h-12 items-center">
+        <div class="flex gap-4 justify-between items-center">
+          <span class="flex items-center gap-4 drag-handle cursor-move">⋮⋮ <h3 class="font-bold text-2xl">Paragraph</h3></span>
+          <div class="flex gap-4 items-center"> 
+            <div class="flex justify-end gap-4 h-12 items-center">
               <div>Origin Language:</div>
-              <div class="flex items-center gap-2">
-                  <RadioButton v-model="originLanguage" inputId="en" name="originLanguage" :value="LANGUAGE_CODE.EN" />
+              <template v-for="(item) of languages" :key="item">
+                <div v-if="item === LANGUAGE_CODE.EN" class="flex items-center gap-2">
+                  <RadioButton  v-model="originLanguage" :disabled="isShowEditButton" inputId="en" name="originLanguage" :value="LANGUAGE_CODE.EN" />
                   <label for="en"> <img class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" /> </label>
-              </div>
-              <div class="flex items-center gap-2">
-                  <RadioButton v-model="originLanguage" inputId="vi" name="originLanguage" :value="LANGUAGE_CODE.VI"/>
-                  <label for="vi"> <img class="w-8 h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="Vietnam Flag" /> </label>
-              </div>
-              <div class="flex items-center gap-2">
-                  <RadioButton v-model="originLanguage" inputId="ko" name="originLanguage" :value="LANGUAGE_CODE.KO" />
-                  <label for="ko"> <img class="h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="Korea Flag"/> </label>
-              </div>
+                  </div>
+                  <div v-if="item === LANGUAGE_CODE.VI" class="flex items-center gap-2">
+                      <RadioButton v-model="originLanguage" :disabled="isShowEditButton" inputId="vi" name="originLanguage" :value="LANGUAGE_CODE.VI"/>
+                      <label for="vi"> <img class="w-8 h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="Vietnam Flag" /> </label>
+                  </div>
+                  <div v-if="item === LANGUAGE_CODE.KO" class="flex items-center gap-2">
+                      <RadioButton :disabled="isShowEditButton" v-model="originLanguage" inputId="ko" name="originLanguage" :value="LANGUAGE_CODE.KO" />
+                      <label for="ko"> <img class="h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="Korea Flag"/> </label>
+                  </div>
+              </template>
           </div>
-          <Button v-if="!isShowEditButton" icon="pi pi-save" severity="help" variant="text" rounded aria-label="Save" @click="handleSaveClick"/>
+          <Button v-if="!isShowEditButton" :disabled="!formValue[originLanguage]"  icon="pi pi-save" severity="help" variant="text" rounded aria-label="Save" @click="handleSaveClick"/>
           <Button v-if="isShowEditButton" icon="pi pi-pencil" severity="contrast" variant="text" rounded aria-label="Edit" @click="handleEditClick"/>
-          <Button icon="pi pi-times" severity="danger" variant="text" rounded aria-label="Cancel" />
+          <Button icon="pi pi-times" severity="danger" variant="text" rounded aria-label="Cancel" @click="handleDeleteClick"/>
+          </div>
         </div>
         <div  v-for="(item) of languages" class="flex gap-4 items-center">
           <img v-if="item === LANGUAGE_CODE.EN" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" />
@@ -31,50 +36,67 @@
       </div>
     </template>
     <template v-else>
-      <div v-for="(item, index) of languages" :key="item" >
-        <h4 v-if="index !== 0" class="font-bold w-full text-md text-gray-400">{{ dataByLanguage?.[item] }}</h4>
-        <h3 v-else  :class="styleClass" class="font-bold text-2xl">
-          {{ dataByLanguage?.[item] }}
-        </h3>
+      <div v-for="(item, index) of languages" :key="item" class="flex gap-4 items-center">
+        <img v-if="item === LANGUAGE_CODE.EN" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" />
+        <img v-if="item === LANGUAGE_CODE.VI" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="United States Flag" />
+        <img v-if="item === LANGUAGE_CODE.KO" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="United States Flag" />
+        <p v-if="index !== 0" class="w-full text-gray-400">{{ formValue?.[item] }}</p>
+        <p v-else  :class="styleClass" class="w-full text-xl">
+          {{ formValue?.[item] }}
+        </p>
       </div>
     </template>
    </div>
 </template>
 <script setup lang='ts'>
-import { ref, toRefs } from 'vue';
+import { ref, toRefs, computed } from 'vue';
 import { useLanguages } from '../../composables/useSelectLanguage';
 import { LANGUAGE_CODE, MAPPING_LANGUAGE } from '../../constants/common.constant';
 import { generateText } from '../../services/GenerativeAIService';
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
 import RadioButton from 'primevue/radiobutton';
+import { updatePostSession } from '../../services/PostService';
 
 const props = defineProps<{
+  id: string;
   content: Record<string, string>,
   defaultLanguage: string,
   isEditMode: boolean;
-  styleClass?: string}>()
+  styleClass?: string}>();
 
-  const { getLanguages } = useLanguages();
+const emits = defineEmits<{
+  delete: [id: string]
+}>();
+
+const { getLanguages } = useLanguages();
 const {defaultLanguage, content} = toRefs(props);
 const originLanguage = ref<string>(defaultLanguage.value || LANGUAGE_CODE.EN);
-const dataByLanguage = ref<Record<string, string>>();
-const languages = ref<string[]>([]);
+const languages = computed(()=> getLanguages().value.length ? getLanguages().value : [LANGUAGE_CODE.EN]);
 const formValue = ref<Record<string, string>>(content.value);
 const isShowEditButton = ref<boolean>(true);
 
 async function handleSaveClick() {
   isShowEditButton.value = true;
   const languagesString = languages.value.filter(item=>item !== originLanguage.value).map(item=>MAPPING_LANGUAGE[item]).join(', ');
-  const responseObject = await generateText(`Dịch "${props.content[originLanguage.value]}" sang ngôn ngữ ${languagesString.toLowerCase()}. Theo cách dễ hiểu nhất. Trả về dạng json với cấu trúc {[languageCode]: value}`);
-  formValue.value = {...responseObject, [originLanguage.value]: formValue.value[originLanguage.value]}
+  const responseObject = await generateText(`Dịch "${formValue.value[originLanguage.value]}" sang ngôn ngữ ${languagesString.toLowerCase()}. Theo cách dễ hiểu nhất. Trả về dạng json với cấu trúc {[languageCode]: value}`);
+  formValue.value = {...responseObject, [originLanguage.value]: formValue.value[originLanguage.value]};
+  const updateResponse = await updatePostSession(props.id, {
+    defaultLanguage: originLanguage.value,
+    vi: formValue.value[LANGUAGE_CODE.VI],
+    ko: formValue.value[LANGUAGE_CODE.KO],
+    en: formValue.value[LANGUAGE_CODE.EN]
+  });
+  if(updateResponse?.statusCode === 200) {
+    isShowEditButton.value = true;
+  }
+}
+
+function handleDeleteClick() {
+  emits('delete', props.id)
 }
 
 function handleEditClick() {
   isShowEditButton.value = false;
 }
-const init = async () => {
-  languages.value = getLanguages().value || [LANGUAGE_CODE.EN];
-}
-init();
 </script>

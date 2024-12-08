@@ -45,7 +45,7 @@
               <Button label="Add a Card"  severity="secondary" icon="pi pi-plus" class="min-w-fit w-full flex !justify-start" @click="addNewTask(board)"/>
               <Button icon="pi pi-trash" severity="danger" variant="text" @click="deleteColumn(board)"/>
             </footer>
-        </div>
+          </div>
         </template>
     </draggable>
     <Button label="Add a column"  severity="secondary" icon="pi pi-plus" class="min-w-fit flex h-12 !justify-start" @click="addNewColumn"/>
