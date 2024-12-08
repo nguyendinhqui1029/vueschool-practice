@@ -7,7 +7,14 @@ export interface ComponentModel {
         vi: string;
         ko: string;
         en: string;
-    }
+    };
+    listType?: string;
+    options: {
+       
+        vi: string;
+        ko: string;
+        en: string;
+    }[]
 }
 
 export interface PageModel {

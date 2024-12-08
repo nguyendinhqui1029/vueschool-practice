@@ -16,7 +16,7 @@ export async function  generateText(prompt: string) {
         if (response.ok) {
             const responseJson = await response.json();
             const value = responseJson.candidates?.[0].content?.parts?.[0]?.text;
-            return JSON.parse(value?.substring(value.indexOf('{'), value.lastIndexOf('}') + 1));
+            return JSON.parse(value?.replace('```json','')?.replace('```',''));
           } else {
             console.error('Error calling the API:', response.status, response.statusText);
           }

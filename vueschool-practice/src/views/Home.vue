@@ -21,7 +21,7 @@
            
             <ul class="flex flex-col gap-1 mt-1">
               <li v-for="post of item.posts" :key="post.id" :class="{'bg-gray-200':post.id === selectedItem?.id}" class="pl-2 flex items-center justify-between" @click="handleSelectMenu(post)">
-                  <span v-if="!post.isEdit" class="cursor-pointer line-clamp-1 leading-8" v-tooltip.bottom="post.title">{{ post.title }}</span>
+                  <span v-if="!post.isEdit" class="cursor-pointer line-clamp-1 leading-8 w-full" v-tooltip.bottom="post.title">{{ post.title }}</span>
                   <InputText v-if="post.isEdit" class="w-full" type="text" v-model="post.title" />
                   <div v-if="isEditModel" class="flex items-center justify-center">
                     <Button @click="handleEditOrSaveChildMenu(post, item.id!)" :disabled="!post.title" class="cursor-pointer" :icon="!post.isEdit ? 'pi pi-pencil' : 'pi pi-save'" severity="contrast" variant="text" rounded aria-label="save and edit" />

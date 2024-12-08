@@ -44,5 +44,12 @@ export const MAPPING_LANGUAGE = {
 export const COMPONENT_TYPE = {
   HEADER: 'HEADER',
   PARAGRAPH: 'PARAGRAPH',
-  LIST: 'LIST'
+  LIST: 'LIST',
+  TRELLO_BOARD: 'TRELLO_BOARD'
+}
+
+export const OPTIONS_TYPE = {
+  DECIMAL: 'list-decimal',
+  DISC: 'list-disc',
+  NONE: 'list-none',
 }

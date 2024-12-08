@@ -6,6 +6,12 @@ export interface PostSessionRequestBody {
     vi: string;
     ko: string;
     en: string;
+    listType?: string;
+    options: {
+        vi: string;
+        ko: string;
+        en: string;
+    }[]
 }
 
 export interface UpdateSessionRequestBody {
@@ -13,6 +19,12 @@ export interface UpdateSessionRequestBody {
     vi: string;
     ko: string;
     en: string;
+    listType?: string;
+    options: {
+        vi: string;
+        ko: string;
+        en: string;
+    }[]
 }
 
 export interface PostSessionResponseValue {
@@ -24,4 +36,10 @@ export interface PostSessionResponseValue {
     vi: string;
     ko: string;
     en: string;
+    listType?: string;
+    options: {
+        vi: string;
+        ko: string;
+        en: string;
+    }[]
 }

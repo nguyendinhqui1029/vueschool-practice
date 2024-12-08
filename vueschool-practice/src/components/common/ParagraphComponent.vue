@@ -36,12 +36,12 @@
       </div>
     </template>
     <template v-else>
-      <div v-for="(item, index) of languages" :key="item" class="flex gap-4 items-center">
-        <img v-if="item === LANGUAGE_CODE.EN" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" />
-        <img v-if="item === LANGUAGE_CODE.VI" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="United States Flag" />
-        <img v-if="item === LANGUAGE_CODE.KO" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="United States Flag" />
-        <p v-if="index !== 0" class="w-full text-gray-400">{{ formValue?.[item] }}</p>
-        <p v-else  :class="styleClass" class="w-full text-xl">
+      <div v-for="(item, index) of languages" :key="item" class="flex gap-4 items-start">
+        <img v-if="languages.length > 1 && item === LANGUAGE_CODE.EN" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" />
+        <img v-if="languages.length > 1 && item === LANGUAGE_CODE.VI" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="United States Flag" />
+        <img v-if="languages.length > 1 && item === LANGUAGE_CODE.KO" class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="United States Flag" />
+        <p v-if="index !== 0" class="w-full text-gray-500">{{ formValue?.[item] }}</p>
+        <p v-else  :class="styleClass" class="w-full">
           {{ formValue?.[item] }}
         </p>
       </div>
@@ -50,7 +50,6 @@
 </template>
 <script setup lang='ts'>
 import { ref, toRefs, computed } from 'vue';
-import { useLanguages } from '../../composables/useSelectLanguage';
 import { LANGUAGE_CODE, MAPPING_LANGUAGE } from '../../constants/common.constant';
 import { generateText } from '../../services/GenerativeAIService';
 import Textarea from 'primevue/textarea';
@@ -63,32 +62,33 @@ const props = defineProps<{
   content: Record<string, string>,
   defaultLanguage: string,
   isEditMode: boolean;
-  styleClass?: string}>();
+  styleClass?: string;
+  languagesList: string[]}>();
 
 const emits = defineEmits<{
   delete: [id: string]
 }>();
 
-const { getLanguages } = useLanguages();
-const {defaultLanguage, content} = toRefs(props);
+const {defaultLanguage, content, languagesList} = toRefs(props);
 const originLanguage = ref<string>(defaultLanguage.value || LANGUAGE_CODE.EN);
-const languages = computed(()=> getLanguages().value.length ? getLanguages().value : [LANGUAGE_CODE.EN]);
+const languages = computed(()=> languagesList.value);
 const formValue = ref<Record<string, string>>(content.value);
 const isShowEditButton = ref<boolean>(true);
 
 async function handleSaveClick() {
   isShowEditButton.value = true;
-  const languagesString = languages.value.filter(item=>item !== originLanguage.value).map(item=>MAPPING_LANGUAGE[item]).join(', ');
+  const languagesString = Object.values(LANGUAGE_CODE).filter(item=>item !== originLanguage.value).map(item=>MAPPING_LANGUAGE[item]).join(', ');
   const responseObject = await generateText(`Dịch "${formValue.value[originLanguage.value]}" sang ngôn ngữ ${languagesString.toLowerCase()}. Theo cách dễ hiểu nhất. Trả về dạng json với cấu trúc {[languageCode]: value}`);
   formValue.value = {...responseObject, [originLanguage.value]: formValue.value[originLanguage.value]};
   const updateResponse = await updatePostSession(props.id, {
     defaultLanguage: originLanguage.value,
     vi: formValue.value[LANGUAGE_CODE.VI],
     ko: formValue.value[LANGUAGE_CODE.KO],
-    en: formValue.value[LANGUAGE_CODE.EN]
+    en: formValue.value[LANGUAGE_CODE.EN],
+    options: []
   });
   if(updateResponse?.statusCode === 200) {
-    isShowEditButton.value = true;
+      isShowEditButton.value = true;
   }
 }
 
