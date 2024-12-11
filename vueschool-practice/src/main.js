@@ -6,6 +6,7 @@ import './style.css'
 import { basicSetup } from 'codemirror'
 import VueCodemirror from 'vue-codemirror'
 import router from './router';
+import Tooltip from 'primevue/tooltip';
 
 createApp(App)
 .use(router)
@@ -13,7 +14,7 @@ createApp(App)
   theme: {
       preset: Aura
   }
-})
+}).directive('tooltip', Tooltip)
 .use(VueCodemirror, {
     // optional default global options
     autofocus: true,
