@@ -33,7 +33,7 @@
         </ul>
       </div>
       <div class="flex flex-col max-h-screen w-full p-4">
-        <div class="flex items-center justify-end gap-4 h-12 border-b-2 mb-5">
+        <div class="flex items-center justify-end gap-4 h-12 border-b-2 mb-5 p-4">
           <div class="flex items-center gap-2">
               <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.EN)" inputId="en" value="en" v-model="selectedLanguages"/>
               <label for="en"> <img class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" /> </label>
@@ -186,9 +186,13 @@
 
   watch(()=> selectedLanguages.value, (value: string[]) => {
     setLanguages(value);
+    router.replace({ path: '/', query: { ...route.query, languages: value } });
   })
 
   async function init() {
+    if(Array.isArray(route.query.languages) && route.query.languages?.length) {
+      setLanguages(route.query.languages.map(item=>item?.toString() || ''))
+    }
     const menuResponse = await getAllMenu();
     if(menuResponse?.statusCode === 200) {
       const rootMenuList = menuResponse.data.filter(item=>!item.parentId);
