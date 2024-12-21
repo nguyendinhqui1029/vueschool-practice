@@ -1,9 +1,10 @@
 <template>
-    <div class="flex h-screen max-h-screen w-screen border-e-2">
-      <div class="flex flex-col h-full min-w-80 max-w-80 border-r-2 p-2">
+    <div class="flex h-screen max-h-screen w-screen border-e-2 overflow-x-hidden" v-if="!isShowLoading">
+      <div class="flex-col h-full hidden w-0 sm:flex sm:min-w-80 sm:max-w-80 border-r-2 p-2 overflow-clip transition-min-width duration-1000 ease-in-out" :class="{'!flex': isShowMenuBar, '!min-w-full': isShowMenuBar}">
         <h3 class="font-bold text-2xl flex justify-between items-center">
           Topic
           <Button :disabled="!isAllowAddParentMenu" @click="addParentMenu" v-if="isEditModel" class="cursor-pointer" icon="pi pi-plus" severity="contrast" variant="text" rounded aria-label="Add" />
+          <Button @click="handleToggleMenuBar" class="flex sm:!hidden cursor-pointer" icon="pi pi-times" severity="contrast" variant="text" rounded aria-label="close" />
         </h3>
         <ul class="flex flex-col gap-2 mt-2 ml-2">
           <li v-for="item of topicList" :key="item.id">
@@ -32,26 +33,31 @@
           </li>
         </ul>
       </div>
-      <div class="flex flex-col max-h-screen w-full p-4">
-        <div class="flex items-center justify-end gap-4 h-12 border-b-2 mb-5 p-4">
-          <div class="flex items-center gap-2">
+      <div class="flex flex-col max-h-screen w-full p-4" :class="{'w-0': isShowMenuBar}">
+        <div class="flex items-center justify-between h-12 border-b-2 mb-5 py-4">
+          <div>
+            <Button v-if="!isEditModel" @click="handleToggleMenuBar" class="flex sm:!hidden cursor-pointer" icon="pi pi-bars" severity="contrast" variant="text" rounded aria-label="bars" />
+            <Button v-if="isEditModel && selectedItem?.id" @click="handleAddContentComponent" class="cursor-pointer" icon="pi pi-bars" severity="contrast" variant="text" rounded aria-label="bars" />
+          </div>
+          <div class="flex gap-3 items-center justify-center">
+            <div class="flex items-center gap-1">
               <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.EN)" inputId="en" value="en" v-model="selectedLanguages"/>
-              <label for="en"> <img class="w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" /> </label>
+              <label for="en"> <img class="min-w-8 w-8 h-6 cursor-pointer"  src="https://www.flagpedia.net/data/flags/h80/us.png" alt="United States Flag" /> </label>
+            </div>
+            <div class="flex items-center gap-1">
+                <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.VI)" inputId="vi" value="vi" v-model="selectedLanguages"/>
+                <label for="vi"> <img class="min-w-8 w-8 h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="Vietnam Flag" /> </label>
+            </div>
+            <div class="flex items-center gap-1">
+                <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.KO)" inputId="ko" value="ko" v-model="selectedLanguages"/>
+                <label for="ko"> <img class="h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="Korea Flag"/> </label>
+            </div>
+            <ToggleSwitch :value="isEditModel" @change="handleLoginForEdit">
+                <template #handle="{ checked }">
+                    <i :class="['!text-xs pi', { 'pi-eye': checked, 'pi-pencil': !checked }]" />
+                </template>
+            </ToggleSwitch>
           </div>
-          <div class="flex items-center gap-2">
-              <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.VI)" inputId="vi" value="vi" v-model="selectedLanguages"/>
-              <label for="vi"> <img class="w-8 h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/vn.png" alt="Vietnam Flag" /> </label>
-          </div>
-          <div class="flex items-center gap-2">
-              <Checkbox :disabled="selectedLanguages.length === 1 && selectedLanguages.includes(LANGUAGE_CODE.KO)" inputId="ko" value="ko" v-model="selectedLanguages"/>
-              <label for="ko"> <img class="h-6 cursor-pointer" src="https://www.flagpedia.net/data/flags/h80/kr.png" alt="Korea Flag"/> </label>
-          </div>
-          <Button v-if="isEditModel && selectedItem?.id" @click="handleAddContentComponent" class="cursor-pointer" icon="pi pi-bars" severity="contrast" variant="text" rounded aria-label="Add" />
-          <ToggleSwitch :value="isEditModel" @change="handleLoginForEdit">
-              <template #handle="{ checked }">
-                  <i :class="['!text-xs pi', { 'pi-eye': !checked, 'pi-pencil': checked }]" />
-              </template>
-          </ToggleSwitch>
         </div>
         <div class="flex grow overflow-y-auto">
           <PageWrapperComponent 
@@ -60,9 +66,11 @@
           :allowEdit="isEditModel"
           :isVisibleSelectComponent="isVisibleSelectComponent"
           @toggleVisibleSelectComponent="isVisibleSelectComponent = !isVisibleSelectComponent"/>
-        </div>
-        
+        </div>   
       </div>
+    </div>
+    <div v-else class="flex items-center justify-center w-screen h-screen">
+      <img :src="imageUrl" alt="loading" class="h-80"/>
     </div>
   </template>
   
@@ -78,6 +86,7 @@
   import { addMenu, deleteMenu, getAllMenu, updateMenu } from '../services/MenuService';
   import { Post, Topic } from '../models/MenuModel';
   import ToggleSwitch from 'primevue/toggleswitch';
+  import imageUrl from '@/assets/loading.webp';
 
   const {getLanguages, setLanguages} = useLanguages();
   const router = useRouter();
@@ -89,7 +98,13 @@
   const isEditModel = ref<boolean>(false);
   const isAllowAddParentMenu = computed(()=> !topicList.value.filter(item=>item.isEdit).length);
   const isVisibleSelectComponent = ref<boolean>(false);
+  const isShowLoading = ref(true);
+  const isShowMenuBar = ref(false);
 
+  function handleToggleMenuBar() {
+    isShowMenuBar.value = !isShowMenuBar.value;
+    console.log('isShowMenuBar.value', isShowMenuBar.value)
+  }
   function addParentMenu() {
     topicList.value.push({
       groupName: '',
@@ -193,6 +208,7 @@
     if(Array.isArray(route.query.languages) && route.query.languages?.length) {
       setLanguages(route.query.languages.map(item=>item?.toString() || ''))
     }
+    isShowLoading.value = true;
     const menuResponse = await getAllMenu();
     if(menuResponse?.statusCode === 200) {
       const rootMenuList = menuResponse.data.filter(item=>!item.parentId);
@@ -218,6 +234,7 @@
         }
     });
     selectedLanguages.value = getLanguages().value;
+    isShowLoading.value = false;
   }
 
   init();
