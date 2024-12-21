@@ -4,7 +4,7 @@
       <div class="flex flex-col gap-4">
         <div class="flex flex-wrap gap-4 justify-between items-center">
           <span class="drag-handle flex gap-4 cursor-move">⋮⋮ <h3 class="font-bold text-2xl">Header</h3></span>
-          <div class="flex gap-4 items-center w-full"> 
+          <div class="flex gap-4 items-center"> 
             <div class="flex justify-end gap-4 h-12 items-center">
               <template v-for="(item) of languages" :key="`header_${item}`">
                   <div v-if="item === LANGUAGE_CODE.EN" class="flex items-center gap-2">
