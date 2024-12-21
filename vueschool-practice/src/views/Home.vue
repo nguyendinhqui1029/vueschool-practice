@@ -225,6 +225,9 @@
           }))
         });
       });
+      if( topicList.value.length) {
+        selectedItem.value = topicList.value[0].posts[0];
+      }
     }
     topicList.value.some(value=>{
       const item = value.posts.find(item=>item.id === route.query['id']);
