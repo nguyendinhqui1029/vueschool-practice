@@ -18,12 +18,12 @@
       class="flex flex-col gap-6 items-start w-full">
       <template #item="{ element: item }: { element: ComponentModel }">
         <div class="w-full" :key="item.id">
-          <HeaderComponent v-if="item.componentType === COMPONENT_TYPE.HEADER" :languagesList="languages" :id="item.id" :isEditMode="isEditMode"
+          <HeaderComponent class="mb-2" v-if="item.componentType === COMPONENT_TYPE.HEADER" :languagesList="languages" :id="item.id" :isEditMode="isEditMode"
             :content="item.content" :options="item.options" :defaultLanguage="item.defaultLanguage" @delete="handleDeleteComponent" />
-          <ParagraphComponent v-if="item.componentType === COMPONENT_TYPE.PARAGRAPH" :languagesList="languages" :id="item.id"
+          <ParagraphComponent class="mb-8" v-if="item.componentType === COMPONENT_TYPE.PARAGRAPH" :languagesList="languages" :id="item.id"
             :isEditMode="isEditMode" :content="item.content" :options="item.options" :defaultLanguage="item.defaultLanguage"
             @delete="handleDeleteComponent" />
-          <ListComponent  v-if="item.componentType === COMPONENT_TYPE.LIST" :languagesList="languages" :id="item.id"
+          <ListComponent  class="mb-8" v-if="item.componentType === COMPONENT_TYPE.LIST" :languagesList="languages" :id="item.id"
             :isEditMode="isEditMode" :content="item.content" :options="item.options" :defaultLanguage="item.defaultLanguage"
             @delete="handleDeleteComponent"/>
 

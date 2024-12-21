@@ -4,7 +4,10 @@ module.exports = {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+      'min-width': 'min-w',
+    }},
   },
   plugins: [],
 };
